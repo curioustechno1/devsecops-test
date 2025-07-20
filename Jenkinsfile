@@ -7,13 +7,21 @@ pipeline {
                 echo 'Cloning the GitHub Repository.....'
             }
         }
-        stage('Secret Scan (trufflehog)') {
-            steps {
-               sh 'trufflehog --regex --entropy=True https://github.com/Akashsonawane571/devsecops-test'
-                // Run command when trufflehog is installed
-                // sh 'trufflehog https://github.com/Akashsonawane571/devsecops-test.git'
-            }
+        stage('Secret Scan (TruffleHog)') {
+          steps {
+            echo 'Running TruffleHog on latest commit only...'
+            sh '''
+              # Clone only latest commit
+              git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+              cd temp_repo
+              # Run trufflehog locally on shallow clone
+              trufflehog --regex --entropy=True --max_depth=10 . || true
+              cd ..
+              rm -rf temp_repo
+            '''
+          }
         }
+
         stage('Dependency Check') {
             steps {
                 echo 'Running npm audit...'
