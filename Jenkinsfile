@@ -15,10 +15,11 @@ pipeline {
               git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
               cd temp_repo
               # Run trufflehog locally on shallow clone
-              trufflehog --regex --entropy=True --max_depth=10 . || true
+              trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.txt || true
               cd ..
               rm -rf temp_repo
             '''
+            archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
           }
         }
 
