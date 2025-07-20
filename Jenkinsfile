@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                echo 'Cloning the GitHub Repository...'
+                echo 'Cloning the GitHub Repository.....'
             }
         }
         stage('Secret Scan (trufflehog)') {
