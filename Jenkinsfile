@@ -9,7 +9,7 @@ pipeline {
         }
         stage('Secret Scan (trufflehog)') {
             steps {
-                echo 'Running TruffleHog scan...'
+                sh 'trufflehog git https://github.com/Akashsonawane571/devsecops-test'
                 // Run command when trufflehog is installed
                 // sh 'trufflehog https://github.com/Akashsonawane571/devsecops-test.git'
             }
