@@ -7,6 +7,7 @@ pipeline {
 
     stages {
 
+        /*
         stage('Clone Repository') {
             steps {
                 echo 'Cloning the GitHub Repository...'
@@ -16,21 +17,9 @@ pipeline {
                 '''
             }
         }
-
-        // Uncomment this stage if you want secret scanning with TruffleHog
-        /*
-        stage('Secret Scan (TruffleHog)') {
-            steps {
-                echo 'Running TruffleHog on latest commit...'
-                sh '''
-                    cd temp_repo
-                    trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.json || true
-                '''
-                archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
-            }
-        }
         */
 
+        /*
         stage('Dependency Check (OWASP)') {
             steps {
                 echo 'Running OWASP Dependency-Check...'
@@ -43,26 +32,36 @@ pipeline {
                 archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
             }
         }
+        */
 
-        // Uncomment this stage if you configure SonarQube in Jenkins
-        /*
         stage('SonarQube Scan') {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
-                withSonarQubeEnv('sonar') {
-                    sh "${SONARQUBE_SCANNER_HOME}/bin/sonar-scanner"
+                withSonarQubeEnv('sonarqube') {
+                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            rm -rf temp_repo
+                            git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+                            cd temp_repo
+                            sonar-scanner \
+                              -Dsonar.projectKey=devsecops-test \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=$SONARQUBE_URL \
+                              -Dsonar.login=$SONAR_TOKEN
+                        '''
+                    }
                 }
             }
         }
-        */
 
+        /*
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker Image...'
-                // Uncomment below line if Dockerfile exists
                 // sh 'docker build -t juice-shop .'
             }
         }
+        */
     }
 
     post {
@@ -72,3 +71,4 @@ pipeline {
         }
     }
 }
+
