@@ -39,7 +39,7 @@ pipeline {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
                 withSonarQubeEnv('sonarqube') {
-                    withCredentials([string(credentialsId: 'juice-shop-sast', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([string(credentialsId: 'newtoken', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             rm -rf temp_repo
                             git clone --depth=1  https://github.com/Harsh-kumar-sinha-427742/devsecops-test.git temp_repo
