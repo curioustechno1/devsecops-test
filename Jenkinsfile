@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'sonar-scanner' // FIXED: Move inside script block below
+        SONAR_SCANNER = tool name: 'juice-shop-sast' // FIXED: Move inside script block below
     }
 
     stages {
