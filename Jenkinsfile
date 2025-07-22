@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'sonar-scanner'  // Name as configured in Jenkins Global Tool Configuration
+        SONAR_SCANNER = tool name: 'sonar-scanner' // FIXED: Move inside script block below
     }
 
     stages {
@@ -40,16 +40,19 @@ pipeline {
                 echo 'Starting SonarQube SAST Scan...'
                 withSonarQubeEnv('sonarqube') {
                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            rm -rf temp_repo
-                            git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
-                            cd temp_repo
-                            $SONAR_SCANNER/bin/sonar-scanner \
-                              -Dsonar.projectKey=devsecops-test \
-                              -Dsonar.sources=. \
-                              -Dsonar.host.url=$SONARQUBE_URL \
-                              -Dsonar.login=$SONAR_TOKEN
-                        '''
+                        script {
+                            def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                            sh """
+                                rm -rf temp_repo
+                                git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+                                cd temp_repo
+                                ${scannerHome}/bin/sonar-scanner \\
+                                  -Dsonar.projectKey=devsecops-test \\
+                                  -Dsonar.sources=. \\
+                                  -Dsonar.host.url=$SONARQUBE_URL \\
+                                  -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
                     }
                 }
             }
