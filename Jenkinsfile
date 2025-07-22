@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'juice-shop-sast' // FIXED: Move inside script block below
+        SONAR_SCANNER = tool name: 'sonar-scanner'  // Make sure this matches your Jenkins Tool Configuration name
     }
 
     stages {
@@ -39,20 +39,17 @@ pipeline {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
                 withSonarQubeEnv('sonarqube') {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        script {
-                            def scannerHome = tool name: 'sonar-scanner', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                            sh """
-                                rm -rf temp_repo
-                                git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
-                                cd temp_repo
-                                ${scannerHome}/bin/sonar-scanner \\
-                                  -Dsonar.projectKey=devsecops-test \\
-                                  -Dsonar.sources=. \\
-                                  -Dsonar.host.url=$SONARQUBE_URL \\
-                                  -Dsonar.login=$SONAR_TOKEN
-                            """
-                        }
+                    withCredentials([string(credentialsId: 'juice-shop-sast', variable: 'SONAR_TOKEN')]) {
+                        sh '''
+                            rm -rf temp_repo
+                            git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+                            cd temp_repo
+                            $SONAR_SCANNER/bin/sonar-scanner \
+                              -Dsonar.projectKey=devsecops-test \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=$SONARQUBE_URL \
+                              -Dsonar.login=$SONAR_TOKEN
+                        '''
                     }
                 }
             }
@@ -70,8 +67,10 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning up temporary files...'
-            sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
+            node {
+                echo 'Cleaning up temporary files...'
+                sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
+            }
         }
     }
 }
