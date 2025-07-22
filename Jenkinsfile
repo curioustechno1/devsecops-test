@@ -24,7 +24,7 @@ pipeline {
                 echo 'Running TruffleHog on latest commit...'
                 sh '''
                     cd temp_repo
-                    trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.txt || true
+                    trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.json || true
                 '''
                 archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
             }
