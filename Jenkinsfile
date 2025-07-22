@@ -42,7 +42,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'juice-shop-sast', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             rm -rf temp_repo
-                            git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+                            git clone --depth=1 https://github.com/Harsh-kumar-sinha-427742/devsecops-test.git temp_repo
                             cd temp_repo
                             $SONAR_SCANNER/bin/sonar-scanner \
                               -Dsonar.projectKey=devsecops-test \
