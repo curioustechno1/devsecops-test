@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
+        SONAR_SCANNER = tool name: 'sonar-scanner'  // Name as configured in Jenkins Global Tool Configuration
     }
 
     stages {
@@ -43,7 +44,7 @@ pipeline {
                             rm -rf temp_repo
                             git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
                             cd temp_repo
-                            sonar-scanner \
+                            $SONAR_SCANNER/bin/sonar-scanner \
                               -Dsonar.projectKey=devsecops-test \
                               -Dsonar.sources=. \
                               -Dsonar.host.url=$SONARQUBE_URL \
@@ -71,4 +72,3 @@ pipeline {
         }
     }
 }
-
