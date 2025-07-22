@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'sonar-scanner'  // Make sure this matches your Jenkins Tool Configuration name
+        SONAR_SCANNER = tool name: 'sonar-scanner'
     }
 
     stages {
@@ -42,7 +42,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'juice-shop-sast', variable: 'SONAR_TOKEN')]) {
                         sh '''
                             rm -rf temp_repo
-                            git clone --depth=1 https://github.com/Harsh-kumar-sinha-427742/devsecops-test.git temp_repo
+                            git clone --depth=1  https://github.com/Harsh-kumar-sinha-427742/devsecops-test.git temp_repo
                             cd temp_repo
                             $SONAR_SCANNER/bin/sonar-scanner \
                               -Dsonar.projectKey=devsecops-test \
@@ -67,10 +67,8 @@ pipeline {
 
     post {
         always {
-            node {
-                echo 'Cleaning up temporary files...'
-                sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
-            }
+            echo 'Cleaning up temporary files...'
+            sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
         }
     }
 }
