@@ -71,5 +71,26 @@ pipeline {
             sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
         }
     } */
+
+    stage('Build Docker Image') {
+    steps {
+        echo 'Building Docker image...'
+        sh '''
+            cd temp_repo
+            docker build -t myapp:latest .
+        '''
+    }
+}
+
+stage('Deploy Container') {
+    steps {
+        echo 'Deploying Docker container...'
+        sh '''
+            docker rm -f myapp || true
+            docker run -d --name myapp -p 8080:8080 myapp:latest
+        '''
+    }
+}
+    
 }
 
