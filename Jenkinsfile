@@ -47,7 +47,8 @@ pipeline {
                             $SONAR_SCANNER/bin/sonar-scanner \
                               -Dsonar.projectKey=devsecops-test \
                               -Dsonar.sources=. \
-                              -Dsonar.host.url=$SONARQUBE_URL \
+                              //-Dsonar.host.url=$SONARQUBE_URL \
+                              -Dsonar.host.url=http://localhost:9000 \
                               -Dsonar.login=$SONAR_TOKEN
                         '''
                     }
