@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        /*
+        
         stage('Clone Repository') {
             steps {
                 echo 'Cloning the GitHub Repository...'
@@ -17,7 +17,7 @@ pipeline {
                 '''
             }
         }
-        */
+        
 
         /*
         stage('Dependency Check (OWASP)') {
@@ -33,7 +33,7 @@ pipeline {
             }
         }
         */
-
+    /*
         stage('SonarQube Scan') {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-
+      */
         stage('Build Docker Image') {
             steps {
                 echo 'Building Docker image...'
