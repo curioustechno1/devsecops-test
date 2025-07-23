@@ -65,11 +65,11 @@ pipeline {
         */
     }
 
-    post {
+ /*   post {
         always {
             echo 'Cleaning up temporary files...'
             sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
         }
-    }
+    } */
 }
 
