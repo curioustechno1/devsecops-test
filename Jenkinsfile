@@ -98,23 +98,24 @@ pipeline {
         */
 
         stage('DAST Scan (OWASP ZAP)') {
-            steps {
-                echo 'Running DAST scan using OWASP ZAP...'
-                sh '''
-                    # Start app container (if not already running)
-                    docker run -d --rm --name  kumar0ndocker/my-juice-shop -p 3000:3000 kumar0ndocker/my-juice-shop:v1
+    steps {
+        echo 'Running DAST scan using OWASP ZAP...'
+        sh '''
+            # Start app container
+            docker run -d --rm --name juice-shop-test -p 3000:3000 kumar0ndocker/my-juice-shop:v1
 
-                    # Wait for the app to be ready
-                    sleep 20
+            # Wait for app to start
+            sleep 20
 
-                    # Run OWASP ZAP in Docker
-                    docker run --rm -v $(pwd):/zap/wrk/:rw -t owasp/zap2docker-stable zap-baseline.py \
-                        -t http://host.docker.internal:3000 \
-                        -g gen.conf -r zap_report.html || true
-                '''
-                archiveArtifacts artifacts: 'zap_report.html', onlyIfSuccessful: false
-            }
-        }
+            # Run OWASP ZAP DAST Scan
+            docker run --rm -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy zap-baseline.py \
+                -t http://host.docker.internal:3000 \
+                -g gen.conf -r zap_report.html || true
+        '''
+        archiveArtifacts artifacts: 'zap_report.html', onlyIfSuccessful: false
+    }
+}
+
 
     }
 
