@@ -102,14 +102,14 @@ pipeline {
         echo 'Running DAST scan using OWASP ZAP...'
         sh '''
             # Start app container
-            docker run -d --rm --name juice-shop-test -p 3000:3000 kumar0ndocker/my-juice-shop:v1
+            docker run -d --rm --name juice-shop-test -p 3001:3000 kumar0ndocker/my-juice-shop:v1
 
             # Wait for app to start
             sleep 20
 
             # Run OWASP ZAP DAST Scan
             docker run --rm -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy zap-baseline.py \
-                -t http://host.docker.internal:3000 \
+                -t http://host.docker.internal:3001 \
                 -g gen.conf -r zap_report.html || true
         '''
         archiveArtifacts artifacts: 'zap_report.html', onlyIfSuccessful: false
