@@ -62,6 +62,7 @@ pipeline {
             }
         }
         */
+        /*
 
         stage('Build Project') {
             steps {
@@ -79,7 +80,7 @@ pipeline {
                     sh 'docker build -t juice-shop .'
                 }
             }
-        }
+        }  */
 
         /*
         stage('Deploy to Server') {
