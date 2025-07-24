@@ -102,7 +102,7 @@ pipeline {
                 echo 'Running DAST scan using OWASP ZAP...'
                 sh '''
                     # Start app container (if not already running)
-                    docker run -d --rm --name kumar0ndocker/my-juice-shop -p 3000:3000 kumar0ndocker/my-juice-shop
+                    docker run -d --rm --name my-juice-shop -p 3000:3000 kumar0ndocker/my-juice-shop:v1
 
                     # Wait for the app to be ready
                     sleep 20
