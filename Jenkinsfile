@@ -108,7 +108,7 @@ pipeline {
             sleep 20
 
             # Run OWASP ZAP DAST Scan
-            docker run --rm -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy zap-baseline.py \
+            docker run --rm -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy zap-baseline.py \
                 -t http://host.docker.internal:3001 \
                 -g gen.conf -r zap_report.html || true
         '''
