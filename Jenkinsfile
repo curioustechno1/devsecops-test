@@ -3,11 +3,10 @@ pipeline {
 
     environment {
         DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'sonar-scanner'
     }
 
     stages {
-        
+
         stage('Clone Repository') {
             steps {
                 echo 'Cloning the GitHub Repository...'
@@ -17,9 +16,19 @@ pipeline {
                 '''
             }
         }
-        
 
         /*
+        stage('Secret Scan (TruffleHog)') {
+            steps {
+                echo 'Running TruffleHog on latest commit...'
+                sh '''
+                    cd temp_repo
+                    trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.txt || true
+                '''
+                archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
+            }
+        }
+
         stage('Dependency Check (OWASP)') {
             steps {
                 echo 'Running OWASP Dependency-Check...'
@@ -33,54 +42,66 @@ pipeline {
             }
         }
         */
-    /*
+
+        /*
         stage('SonarQube Scan') {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
-                withSonarQubeEnv('sonarqube') {
-                    withCredentials([string(credentialsId: 'newtoken', variable: 'SONAR_TOKEN')]) {
-                        sh '''
-                            rm -rf temp_repo
-                            git clone --depth=1 https://github.com/Harsh-kumar-sinha-427742/devsecops-test.git temp_repo
+                withSonarQubeEnv('sonar') {
+                    script {
+                        def scannerHome = tool name: 'sonar-scanner'
+                        sh """
                             cd temp_repo
-                            $SONAR_SCANNER/bin/sonar-scanner \
-                              -Dsonar.projectKey=devsecops-test \
-                              -Dsonar.sources=. \
-                              -Dsonar.host.url=http://localhost:9000 \
-                              -Dsonar.login=$SONAR_TOKEN
+                            ${scannerHome}/bin/sonar-scanner \\
+                                -Dsonar.projectKey=juice-shop \\
+                                -Dsonar.sources=. \\
+                                -Dsonar.host.url=http://192.168.81.128:9000
+                        """
+                    }
+                }
+            }
+        }
+        */
+
+        stage('Build Project') {
+            steps {
+                echo 'Building the Java project with Maven...'
+                dir('temp_repo') {
+                    sh 'mvn clean install -DskipTests'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker Image...'
+                dir('temp_repo') {
+                    sh 'docker build -t juice-shop .'
+                }
+            }
+        }
+
+        /*
+        stage('Deploy to Server') {
+            steps {
+                timeout(time: 3, unit: 'MINUTES') {
+                    sshagent(credentials: ['app-server']) {
+                        sh '''
+                            scp -o StrictHostKeyChecking=no temp_repo/webgoat-server/target/webgoat-server-v8.2.0-SNAPSHOT.jar ubuntu@3.109.152.116:/WebGoat
+                            ssh -o StrictHostKeyChecking=no ubuntu@3.109.152.116 "nohup java -jar /WebGoat/webgoat-server-v8.2.0-SNAPSHOT.jar > /dev/null 2>&1 &"
                         '''
                     }
                 }
             }
         }
-      */
-        stage('Build Docker Image') {
-            steps {
-                echo 'Building Docker image...'
-                sh '''
-                    cd temp_repo
-                    docker build -t myapp:latest .
-                '''
-            }
-        }
+        */
 
-        stage('Deploy Container') {
-            steps {
-                echo 'Deploying Docker container...'
-                sh '''
-                    docker rm -f myapp || true
-                    docker run -d --name myapp -p 8080:8080 myapp:latest
-                '''
-            }
-        }
     }
 
-    /*
     post {
         always {
             echo 'Cleaning up temporary files...'
             sh 'rm -rf temp_repo dependency-check-report trufflehog_report.txt || true'
         }
     }
-    */
 }
