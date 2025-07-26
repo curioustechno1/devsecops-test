@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DEPENDENCY_CHECK = '/opt/dependency-check/bin/dependency-check.sh'
+        DEPENDENCY_CHECK = '/opt/dependency-check/dependency-check/bin/dependency-check.sh'
         SONAR_SCANNER = tool name: 'sonar-scanner'
         ZAP_REPORT_HTML = 'zap_report.html'
         ZAP_REPORT_XML  = 'zap_report.xml'
@@ -35,18 +35,13 @@ pipeline {
         stage('Dependency Check (OWASP)') {
             steps {
                 echo 'Running OWASP Dependency-Check...'
-                dir('temp_repo') {
-                    sh '''
-                        mkdir -p ../dependency-check-report
-                        $DEPENDENCY_CHECK \
-                            --project "Universal-SCA-Scan" \
-                            --scan . \
-                            --format ALL \
-                            --out ../dependency-check-report \
-                            --prettyPrint || true
-                    '''
-                }
-                archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
+                sh '''
+                    mkdir -p dependency-check-report
+                    cd temp_repo
+                    $DEPENDENCY_CHECK --project "Universal-SCA-Scan" --scan . --format ALL --out ../dependency-check-report || true
+                    cd ..
+                '''
+                archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
             }
         }
 
