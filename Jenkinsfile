@@ -33,20 +33,24 @@ pipeline {
             }
         }
 
-        stage('Dependency Check (OWASP)') {
-            steps {
-                echo 'Running OWASP Dependency-Check...'
-                sh '''
-                    mkdir -p dependency-check-report
-                    cd temp_repo
-                    $DEPENDENCY_CHECK --project "Universal-SCA-Scan" --scan . --format ALL --out ../dependency-check-report || true
-                    cd ..
-                '''
-               // archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
-                archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
+       stage('Dependency Check (OWASP)') {
+    steps {
+        echo 'Running OWASP Dependency-Check...'
+        sh '''
+            mkdir -p dependency-check-report
+            $DEPENDENCY_CHECK \
+              --project "Universal-SCA-Scan" \
+              --scan temp_repo \
+              --format HTML,XML,JSON \
+              --out dependency-check-report || true
+        '''
+        echo 'Listing contents of dependency-check-report directory...'
+        sh 'ls -la dependency-check-report'
 
-            }
-        }
+        archiveArtifacts artifacts: 'dependency-check-report/*.html, dependency-check-report/*.xml, dependency-check-report/*.json', onlyIfSuccessful: false
+    }
+}
+
 
         stage('SonarQube Scan') {
             steps {
