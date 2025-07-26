@@ -29,6 +29,7 @@ pipeline {
                     filesystem /project > trufflehog_report.txt || true
                 '''
                 archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
+                
             }
         }
 
@@ -41,7 +42,9 @@ pipeline {
                     $DEPENDENCY_CHECK --project "Universal-SCA-Scan" --scan . --format ALL --out ../dependency-check-report || true
                     cd ..
                 '''
-                archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
+               // archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
+                archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
+
             }
         }
 
