@@ -33,21 +33,19 @@ pipeline {
         }
 
         stage('Dependency Check (OWASP)') {
-            environment {
-                NVD_API_KEY = credentials('NVD_API_KEY') // Jenkins credentials ID
-            }
             steps {
                 echo 'Running OWASP Dependency-Check...'
-                sh '''
-                    mkdir -p dependency-check-report
-                    $DEPENDENCY_CHECK \
-                        --project "Universal-SCA-Scan" \
-                        --scan . \
-                        --format ALL \
-                        --out dependency-check-report \
-                        --prettyPrint \
-                        --nvdApiKey=$NVD_API_KEY || true
-                '''
+                dir('temp_repo') {
+                    sh '''
+                        mkdir -p ../dependency-check-report
+                        $DEPENDENCY_CHECK \
+                            --project "Universal-SCA-Scan" \
+                            --scan . \
+                            --format ALL \
+                            --out ../dependency-check-report \
+                            --prettyPrint || true
+                    '''
+                }
                 archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
             }
         }
