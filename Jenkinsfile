@@ -29,28 +29,24 @@ pipeline {
                     filesystem /project > trufflehog_report.txt || true
                 '''
                 archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
-                
             }
         }
 
-       stage('Dependency Check (OWASP)') {
-    steps {
-        echo 'Running OWASP Dependency-Check...'
-        sh '''
-            mkdir -p dependency-check-report
-            $DEPENDENCY_CHECK \
-              --project "Universal-SCA-Scan" \
-              --scan temp_repo \
-              --format HTML,XML,JSON \
-              --out dependency-check-report || true
-        '''
-        echo 'Listing contents of dependency-check-report directory...'
-        sh 'ls -la dependency-check-report'
-
-        archiveArtifacts artifacts: 'dependency-check-report/*.html, dependency-check-report/*.xml, dependency-check-report/*.json', onlyIfSuccessful: false
-    }
-}
-
+        stage('Dependency Check (OWASP)') {
+            steps {
+                echo 'Running OWASP Dependency-Check...'
+                sh '''
+                    mkdir -p dependency-check-report
+                    $DEPENDENCY_CHECK \
+                        --project "Universal-SCA-Scan" \
+                        --scan . \
+                        --format ALL \
+                        --out dependency-check-report \
+                        --prettyPrint || true
+                '''
+                archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
+            }
+        }
 
         stage('SonarQube Scan') {
             steps {
