@@ -33,6 +33,9 @@ pipeline {
         }
 
         stage('Dependency Check (OWASP)') {
+            environment {
+                NVD_API_KEY = credentials('NVD_API_KEY') // Use Jenkins credentials ID
+            }
             steps {
                 echo 'Running OWASP Dependency-Check...'
                 sh '''
@@ -42,7 +45,8 @@ pipeline {
                         --scan . \
                         --format ALL \
                         --out dependency-check-report \
-                        --prettyPrint || true
+                        --prettyPrint \
+                        --nvdApiKey "$NVD_API_KEY" || true
                 '''
                 archiveArtifacts artifacts: 'dependency-check-report/**/*.*', onlyIfSuccessful: false
             }
