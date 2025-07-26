@@ -81,7 +81,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Server') {
+    /*    stage('Deploy to Server') {
             steps {
                 timeout(time: 3, unit: 'MINUTES') {
                     sshagent(credentials: ['app-server']) {
@@ -92,7 +92,8 @@ pipeline {
                     }
                 }
             }
-        }
+        } 
+        */
 
         stage('Run ZAP DAST Scan (Baseline)') {
             steps {
