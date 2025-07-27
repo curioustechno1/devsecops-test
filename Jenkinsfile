@@ -44,7 +44,8 @@ pipeline {
                             --project "Universal-SCA-Scan" \
                             --scan /src \
                             --format "ALL" \
-                            --out /report
+                            --out /report \
+                            --nvdApiKey a485005e-ad51-44cb-b04f-142525ff9d93
                     '''
                     archiveArtifacts artifacts: 'dependency-check-report/*', allowEmptyArchive: true
                 }
