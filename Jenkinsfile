@@ -32,26 +32,19 @@ pipeline {
             }
         }
 
-        stage('Dependency Check (OWASP)') {
-                steps {
-                    echo 'Running OWASP Dependency-Check...'
-                    sh '''
-                        mkdir -p dependency-check-report
-                        docker run --rm \
-                            -v "$(pwd)/temp_repo:/src" \
-                            -v "$(pwd)/dependency-check-report:/report" \
-                            owasp/dependency-check \
-                            --project "Universal-SCA-Scan" \
-                            --scan /src \
-                            --format "ALL" \
-                            --out /report \
-                            --disableArchive \
-                            --nvdApiKey a485005e-ad51-44cb-b04f-142525ff9d93
-                    '''
-                    archiveArtifacts artifacts: 'dependency-check-report/*', allowEmptyArchive: true
-                }
+       stage('Dependency Check (OWASP)') {
+            steps {
+                echo 'Running OWASP Dependency-Check...'
+                sh '''
+                    mkdir -p dependency-check-report
+                    cd temp_repo
+                    $DEPENDENCY_CHECK --project "Universal-SCA-Scan" --scan . --format ALL --out ../dependency-check-report || true
+                    cd ..
+                '''
+                archiveArtifacts artifacts: 'dependency-check-report/*', onlyIfSuccessful: false
+            }
         }
-
+        
         stage('SonarQube Scan') {
             steps {
                 echo 'Starting SonarQube SAST Scan...'
