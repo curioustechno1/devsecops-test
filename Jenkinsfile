@@ -23,13 +23,18 @@ pipeline {
 
         stage('Secret Scan (TruffleHog)') {
             steps {
-                echo 'Running TruffleHog on latest commit...'
+                echo 'Running TruffleHog on latest commit only...'
                 sh '''
-                    docker run --rm -v $(pwd)/temp_repo:/project trufflesecurity/trufflehog \
-                    filesystem /project > trufflehog_report.txt || true
+                  # Clone only latest commit
+                  git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
+                  cd temp_repo
+                  # Run trufflehog locally on shallow clone
+                  trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.json || true
+                  cd ..
+                  rm -rf temp_repo
                 '''
                 archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
-            }
+          }
         }
 
        stage('Dependency Check (OWASP)') {
