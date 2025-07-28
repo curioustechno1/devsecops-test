@@ -26,7 +26,6 @@ pipeline {
                 echo 'Running TruffleHog on latest commit only...'
                 sh '''
                   # Clone only latest commit
-                  git clone --depth=1 https://github.com/Akashsonawane571/devsecops-test.git temp_repo
                   cd temp_repo
                   # Run trufflehog locally on shallow clone
                   trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.json || true
