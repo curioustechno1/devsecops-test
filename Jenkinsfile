@@ -30,7 +30,6 @@ pipeline {
                   # Run trufflehog locally on shallow clone
                   trufflehog --regex --entropy=True --max_depth=10 . > ../trufflehog_report.json || true
                   cd ..
-                  rm -rf temp_repo
                 '''
                 archiveArtifacts artifacts: 'trufflehog_report.json', onlyIfSuccessful: false
           }
