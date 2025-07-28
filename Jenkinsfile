@@ -32,7 +32,7 @@ pipeline {
                   cd ..
                   rm -rf temp_repo
                 '''
-                archiveArtifacts artifacts: 'trufflehog_report.txt', onlyIfSuccessful: false
+                archiveArtifacts artifacts: 'trufflehog_report.json', onlyIfSuccessful: false
           }
         }
 
