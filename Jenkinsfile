@@ -72,18 +72,26 @@ pipeline {
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }*/
-          stage('Run Nikto DAST Scan') {
-             steps {
+         stage('Run Nikto DAST Scan') {
+            steps {
                 echo 'Running Nikto DAST Scan...'
                 sh '''
-                    rm -rf nikto
-                    git clone https://github.com/sullo/nikto.git
-                    cd nikto/program
-                    chmod +x nikto.pl
-                    export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
-                    ./nikto.pl -h $IP -o $WORKSPACE/$NIKTO_REPORT -Format html || true
+                    ssh -o StrictHostKeyChecking=no ubuntu@$IP << 'EOF'
+                      # Export Perl module path manually to avoid @INC issue
+                      export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
+        
+                      # Prepare Nikto and run scan
+                      rm -rf nikto
+                      git clone https://github.com/sullo/nikto.git
+                      cd nikto/program
+                      chmod +x nikto.pl
+                      ./nikto.pl -h $IP -o nikto_report.html -Format html || true
+                    EOF
+        
+                    # Fetch report back to Jenkins
+                    scp -o StrictHostKeyChecking=no ubuntu@$IP:~/nikto/program/nikto_report.html $WORKSPACE/
                 '''
-                archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
+                archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }
 
