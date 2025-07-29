@@ -36,7 +36,7 @@ pipeline {
                 sshagent(credentials: [env.EC2_KEY_ID]) {
                     sh '''
                         ssh $EC2_HOST "docker run --rm -v /home/ubuntu:/zap/wrk:rw zaproxy/zap-stable \
-                          zap-baseline.py -t http://13.53.133.0:$EC2_APP_PORT \
+                          zap-baseline.py -t http://$IP:$EC2_APP_PORT \
                           -r zap_report.html -x zap_report.xml -J zap_report.json || true"
                           scp $EC2_HOST:~/zap_report.html .
                           scp $EC2_HOST:~/zap_report.xml .
@@ -53,7 +53,7 @@ pipeline {
                 sshagent(credentials: [env.EC2_KEY_ID]) {
                     sh '''
                        ssh $EC2_HOST "sudo apt update && sudo apt install nikto -y"
-                       ssh $EC2_HOST "nikto -h http://localhost:$EC2_APP_PORT -o nikto_report.html || true"
+                       ssh $EC2_HOST "nikto -h http://$IP:$EC2_APP_PORT -o nikto_report.html || true"
                        scp $EC2_HOST:~/nikto_report.html .
                     '''
                 }
