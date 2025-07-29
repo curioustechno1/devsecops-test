@@ -28,6 +28,19 @@ pipeline {
                 }
             }
         }
+
+        stage('Run ZAP on EC2') {
+            steps {
+                echo 'Running OWASP ZAP DAST scan on EC2...'
+                sshagent(credentials: [env.EC2_KEY_ID]) {
+                    sh '''
+                        ssh $EC2_HOST "docker run --rm -v /home/ubuntu:/zap/wrk:rw zaproxy/zap-stable \
+                          zap-baseline.py -t http://localhost:$EC2_APP_PORT \
+                          -r zap_report.html -x zap_report.xml -J zap_report.json || true"
+                    '''
+                }
+            }
+}
     }
         /*
         stage('Clone Repository') {
