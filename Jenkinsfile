@@ -7,7 +7,7 @@ pipeline {
         ZAP_REPORT_HTML   = 'zap_report.html'
         ZAP_REPORT_XML    = 'zap_report.xml'
         ZAP_REPORT_JSON   = 'zap_report.json'
-        IP                = '13.60.41.24'
+        IP                = '13.49.134.206'
         EC2_HOST          = "ubuntu@${IP}"
         EC2_APP_PORT      = '3000'
         EC2_KEY_ID        = 'ec2-ssh-key'
