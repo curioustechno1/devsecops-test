@@ -73,28 +73,24 @@ pipeline {
             }
         }*/
          stage('Run Nikto DAST Scan') {
-            steps {
+              steps {
                 echo 'Running Nikto DAST Scan...'
-                sh '''
-                    ssh -o StrictHostKeyChecking=no ubuntu@$IP << 'EOF'
-                      # Export Perl module path manually to avoid @INC issue
+                sshagent(credentials: ['ec2-ssh-key']) {
+                  sh '''
+                    ssh -o StrictHostKeyChecking=no ubuntu@13.50.251.204 << 'EOF'
                       export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
-        
-                      # Prepare Nikto and run scan
                       rm -rf nikto
                       git clone https://github.com/sullo/nikto.git
                       cd nikto/program
                       chmod +x nikto.pl
-                      ./nikto.pl -h $IP -o nikto_report.html -Format html || true
+                      ./nikto.pl -h 13.50.251.204 -o nikto_report.html -Format html || true
                     EOF
-        
-                    # Fetch report back to Jenkins
-                    scp -o StrictHostKeyChecking=no ubuntu@$IP:~/nikto/program/nikto_report.html $WORKSPACE/
-                '''
+                    scp -o StrictHostKeyChecking=no ubuntu@13.50.251.204:~/nikto/program/nikto_report.html $WORKSPACE/
+                  '''
+                }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
+              }
             }
-        }
-
     }
         /*
         stage('Clone Repository') {
