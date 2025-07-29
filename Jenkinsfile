@@ -2,60 +2,70 @@ pipeline {
     agent any
 
     environment {
-        DEPENDENCY_CHECK = '/home/rocky1/tools/dependency-check/bin/dependency-check.sh'
-        SONAR_SCANNER = tool name: 'sonar-scanner'
-        ZAP_REPORT_HTML = 'zap_report.html'
-        ZAP_REPORT_XML  = 'zap_report.xml'
-        ZAP_REPORT_JSON = 'zap_report.json'
-        TARGET_URL      = 'http://localhost:3000' // Replace with actual target
-        IP              = '51.20.64.102'
-        EC2_HOST = "ubuntu@${IP}"
-        EC2_APP_PORT = '3000'
-        EC2_KEY_ID = 'ec2-ssh-key'
-
+        DEPENDENCY_CHECK  = '/home/rocky1/tools/dependency-check/bin/dependency-check.sh'
+        SONAR_SCANNER     = tool name: 'sonar-scanner'
+        ZAP_REPORT_HTML   = 'zap_report.html'
+        ZAP_REPORT_XML    = 'zap_report.xml'
+        ZAP_REPORT_JSON   = 'zap_report.json'
+        IP                = '51.20.64.102'
+        EC2_HOST          = "ubuntu@${IP}"
+        EC2_APP_PORT      = '3000'
+        EC2_KEY_ID        = 'ec2-ssh-key'
     }
 
     stages {
+
         stage('Deploy App to AWS EC2') {
             steps {
-                echo 'Deploying Juice Shop to EC2...'
+                echo '🚀 Deploying Juice Shop to EC2...'
                 sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh '''
+                    sh """#!/bin/bash
                         ssh -o StrictHostKeyChecking=no $EC2_HOST "docker rm -f juice-shop || true"
                         ssh $EC2_HOST "docker pull kumar0ndocker/my-juice-shop:v1"
-                        ssh $EC2_HOST "docker run -d --name juice-shop -p 3000:3000 kumar0ndocker/my-juice-shop:v1"
-                        ssh $EC2_HOST "sleep 20"
-                    '''
+                        ssh $EC2_HOST "docker run -d --name juice-shop -p $EC2_APP_PORT:$EC2_APP_PORT kumar0ndocker/my-juice-shop:v1"
+                        sleep 20
+                    """
                 }
             }
         }
 
         stage('Run ZAP on EC2') {
             steps {
-                echo 'Running OWASP ZAP DAST scan on EC2...'
+                echo '🛡️ Running OWASP ZAP DAST scan on EC2...'
                 sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh '''
-                        ssh $EC2_HOST "docker run --rm -v /home/ubuntu:/zap/wrk:rw zaproxy/zap-stable \
+                    sh """#!/bin/bash
+                        ssh $EC2_HOST "docker run --rm -v /home/ubuntu:/zap/wrk zaproxy/zap-stable \
                           zap-baseline.py -t http://$IP:$EC2_APP_PORT \
-                          -r zap_report.html -x zap_report.xml -J zap_report.json || true"
-                          scp $EC2_HOST:~/zap_report.html .
-                          scp $EC2_HOST:~/zap_report.xml .
-                          scp $EC2_HOST:~/zap_report.json .
-                    '''
+                          -r $ZAP_REPORT_HTML -x $ZAP_REPORT_XML -J $ZAP_REPORT_JSON || true"
+
+                        scp $EC2_HOST:/home/ubuntu/$ZAP_REPORT_HTML .
+                        scp $EC2_HOST:/home/ubuntu/$ZAP_REPORT_XML .
+                        scp $EC2_HOST:/home/ubuntu/$ZAP_REPORT_JSON .
+                    """
                 }
-                archiveArtifacts artifacts: 'zap_report.html, zap_report.xml, zap_report.json', onlyIfSuccessful: false
+                archiveArtifacts artifacts: "$ZAP_REPORT_HTML, $ZAP_REPORT_XML, $ZAP_REPORT_JSON", onlyIfSuccessful: false
             }
         }
 
         stage('Run Nikto on EC2') {
             steps {
-                echo 'Running Nikto scan on EC2...'
-                sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh '''
-                       ssh $EC2_HOST "sudo apt update && sudo apt install nikto -y"
-                       ssh $EC2_HOST "nikto -h http://$IP:$EC2_APP_PORT -maxtime 10m -o nikto_report.html || true"
-                       scp $EC2_HOST:~/nikto_report.html .
-                    '''
+                echo '🔍 Running Nikto scan on EC2...'
+                timeout(time: 12, unit: 'MINUTES') {
+                    sshagent(credentials: [env.EC2_KEY_ID]) {
+                        sh """#!/bin/bash
+                            ssh $EC2_HOST '
+                                if ! command -v nikto >/dev/null 2>&1; then
+                                    echo "Installing Nikto..."
+                                    sudo apt update && sudo apt install nikto -y
+                                else
+                                    echo "Nikto is already installed."
+                                fi
+
+                                nikto -h http://$IP:$EC2_APP_PORT -maxtime 10m -o nikto_report.html || true
+                            '
+                            scp $EC2_HOST:/home/ubuntu/nikto_report.html .
+                        """
+                    }
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
