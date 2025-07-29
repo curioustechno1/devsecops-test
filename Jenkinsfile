@@ -23,7 +23,7 @@ pipeline {
                     sh """#!/bin/bash
                         ssh -o StrictHostKeyChecking=no $EC2_HOST "docker rm -f juice-shop || true"
                         ssh $EC2_HOST "docker pull kumar0ndocker/my-juice-shop:v1"
-                        ssh $EC2_HOST "docker run -d --name juice-shop -p $EC2_APP_PORT:$EC2_APP_PORT kumar0ndocker/my-juice-shop:v1"
+                        ssh $EC2_HOST "docker run -d  -p $EC2_APP_PORT:$EC2_APP_PORT kumar0ndocker/my-juice-shop:v1"
                         sleep 20
                     """
                 }
