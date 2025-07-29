@@ -47,7 +47,7 @@ pipeline {
             }
         }
 */
-        stage('Run Nikto on EC2') {
+     /*   stage('Run Nikto on EC2') {
             steps {
                 echo '🔍 Running Nikto scan on EC2...'
                 timeout(time: 12, unit: 'MINUTES') {
@@ -70,7 +70,20 @@ pipeline {
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
-        }
+        }*/
+            stage('Run Nikto DAST Scan') {
+                steps {
+                    echo 'Running Nikto DAST Scan...'
+                    sh '''
+                        rm -rf nikto
+                        git clone https://github.com/sullo/nikto.git
+                        cd nikto/program
+                        chmod +x nikto.pl
+                        ./nikto.pl -h $TARGET_URL -o $WORKSPACE/$NIKTO_REPORT -Format html || true
+                    '''
+                    archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
+                }
+            }
     }
         /*
         stage('Clone Repository') {
