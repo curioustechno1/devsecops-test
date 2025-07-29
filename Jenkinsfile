@@ -8,9 +8,28 @@ pipeline {
         ZAP_REPORT_XML  = 'zap_report.xml'
         ZAP_REPORT_JSON = 'zap_report.json'
         TARGET_URL      = 'http://localhost:3000' // Replace with actual target
+        EC2_HOST = 'ubuntu@16.171.152.14'
+        EC2_APP_PORT = '3000'
+        EC2_KEY_ID = 'ec2-ssh-key'
+
     }
 
     stages {
+        stage('Deploy App to AWS EC2') {
+            steps {
+                echo 'Deploying Juice Shop to EC2...'
+                sshagent(credentials: [env.EC2_KEY_ID]) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST "docker rm -f juice-shop || true"
+                        ssh $EC2_HOST "docker pull kumar0ndocker/my-juice-shop:v1"
+                        ssh $EC2_HOST "docker run -d --name juice-shop -p 3000:3000 kumar0ndocker/my-juice-shop:v1"
+                        ssh $EC2_HOST "sleep 20"
+                    '''
+                }
+            }
+        }
+        
+        /*
         stage('Clone Repository') {
             steps {
                 echo 'Cloning the GitHub Repository...'
@@ -82,7 +101,7 @@ pipeline {
                     sh 'docker build -t juice-shop .'
                 }
             }
-        }
+        } */
 
     /*    stage('Deploy to Server') {
             steps {
@@ -97,7 +116,7 @@ pipeline {
             }
         } 
         */
-
+        /*
         stage('Run ZAP DAST Scan (Baseline)') {
             steps {
                 echo 'Running ZAP Baseline DAST Scan...'
@@ -112,7 +131,7 @@ pipeline {
             }
         }
     }
-
+    */
     post {
         always {
             echo 'Cleaning up temporary files...'
