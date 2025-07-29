@@ -80,6 +80,7 @@ pipeline {
                     git clone https://github.com/sullo/nikto.git
                     cd nikto/program
                     chmod +x nikto.pl
+                    export PERL5LIB="/usr/share/perl/5.38.2/Net/hostent.pm"
                     ./nikto.pl -h $IP -o $WORKSPACE/$NIKTO_REPORT -Format html || true
                 '''
                 archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
