@@ -52,7 +52,7 @@ pipeline {
                 sshagent(credentials: [env.EC2_KEY_ID]) {
                     sh '''
                        ssh $EC2_HOST "docker run --rm --net=host -v /home/ubuntu:/output sullo/nikto \
-                       -h http://13.53.133.0:$EC2_APP_PORT -o /output/nikto_report.html || true
+                       -h http://13.53.133.0:$EC2_APP_PORT -o /output/nikto_report.html || true"
                         scp $EC2_HOST:~/nikto_report.html .
                     '''
                 }
