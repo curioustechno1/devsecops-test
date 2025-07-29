@@ -51,9 +51,9 @@ pipeline {
                 echo 'Running Nikto scan on EC2...'
                 sshagent(credentials: [env.EC2_KEY_ID]) {
                     sh '''
-                       ssh $EC2_HOST "docker run --rm --net=host -v /home/ubuntu:/output sullo/nikto \
-                       -h http://13.53.133.0:$EC2_APP_PORT -o /output/nikto_report.html || true"
-                        scp $EC2_HOST:~/nikto_report.html .
+                       ssh $EC2_HOST "sudo apt update && sudo apt install nikto -y"
+                       ssh $EC2_HOST "nikto -h http://localhost:$EC2_APP_PORT -o nikto_report.html || true"
+                       scp $EC2_HOST:~/nikto_report.html .
                     '''
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
