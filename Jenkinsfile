@@ -11,6 +11,7 @@ pipeline {
         EC2_HOST          = "ubuntu@${IP}"
         EC2_APP_PORT      = '3000'
         EC2_KEY_ID        = 'ec2-ssh-key'
+        NIKTO_REPORT = 'nikto_report.html'
     }
 
     stages {
@@ -71,19 +72,20 @@ pipeline {
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }*/
-            stage('Run Nikto DAST Scan') {
-                steps {
-                    echo 'Running Nikto DAST Scan...'
-                    sh '''
-                        rm -rf nikto
-                        git clone https://github.com/sullo/nikto.git
-                        cd nikto/program
-                        chmod +x nikto.pl
-                        ./nikto.pl -h $IP -o $WORKSPACE/$NIKTO_REPORT -Format html || true
-                    '''
-                    archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
-                }
+          stage('Run Nikto DAST Scan') {
+             steps {
+                echo 'Running Nikto DAST Scan...'
+                sh '''
+                    rm -rf nikto
+                    git clone https://github.com/sullo/nikto.git
+                    cd nikto/program
+                    chmod +x nikto.pl
+                    ./nikto.pl -h $IP -o $WORKSPACE/$NIKTO_REPORT -Format html || true
+                '''
+                archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
             }
+        }
+
     }
         /*
         stage('Clone Repository') {
