@@ -37,8 +37,12 @@ pipeline {
                         ssh $EC2_HOST "docker run --rm -v /home/ubuntu:/zap/wrk:rw zaproxy/zap-stable \
                           zap-baseline.py -t http://13.53.133.0:$EC2_APP_PORT \
                           -r zap_report.html -x zap_report.xml -J zap_report.json || true"
+                          scp $EC2_HOST:~/zap_report.html .
+                          scp $EC2_HOST:~/zap_report.xml .
+                          scp $EC2_HOST:~/zap_report.json .
                     '''
                 }
+                archiveArtifacts artifacts: 'zap_report.html, zap_report.xml, zap_report.json', onlyIfSuccessful: false
             }
         }
     }
