@@ -61,7 +61,7 @@ pipeline {
                                     echo "Nikto is already installed."
                                 fi
 
-                                nikto -h http://$IP:$EC2_APP_PORT -maxtime 10m -o nikto_report.html || true
+                                nikto -h http://$IP:$EC2_APP_PORT  -o nikto_report.html || true
                             '
                             scp $EC2_HOST:/home/ubuntu/nikto_report.html .
                         """
