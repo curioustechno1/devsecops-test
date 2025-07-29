@@ -58,7 +58,9 @@ pipeline {
                                 git clone https://github.com/sullo/nikto.git
                                 cd nikto/program
                                 chmod +x nikto.pl
-                                ./nikto.pl -h http://$IP:$EC2_APP_PORT:3000 -o nikto_report.html -Format html || true
+                                ./nikto.pl -h http://$IP:$EC2_APP_PORT:3000 -Tuning 123456789abcde \
+                                -Plugins "apacheexpect,backups,cgis,favicon,headers,httpoptions,misc,robots,ssl,svn,wiki" \
+                                -o nikto_report.html -Format html || true
 
                               
                             '
