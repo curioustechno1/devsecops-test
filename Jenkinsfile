@@ -8,7 +8,7 @@ pipeline {
         ZAP_REPORT_XML  = 'zap_report.xml'
         ZAP_REPORT_JSON = 'zap_report.json'
         TARGET_URL      = 'http://localhost:3000' // Replace with actual target
-        EC2_HOST = 'ubuntu@16.171.152.14'
+        EC2_HOST = 'ubuntu@13.53.133.0'
         EC2_APP_PORT = '3000'
         EC2_KEY_ID = 'ec2-ssh-key'
 
@@ -40,7 +40,7 @@ pipeline {
                     '''
                 }
             }
-}
+        }
     }
         /*
         stage('Clone Repository') {
