@@ -79,7 +79,7 @@ pipeline {
                         git clone https://github.com/sullo/nikto.git
                         cd nikto/program
                         chmod +x nikto.pl
-                        ./nikto.pl -h $TARGET_URL -o $WORKSPACE/$NIKTO_REPORT -Format html || true
+                        ./nikto.pl -h $IP -o $WORKSPACE/$NIKTO_REPORT -Format html || true
                     '''
                     archiveArtifacts artifacts: "${NIKTO_REPORT}", onlyIfSuccessful: false
                 }
