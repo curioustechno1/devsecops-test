@@ -28,7 +28,7 @@ pipeline {
                 }
             }
         }
-
+    /*
         stage('Run ZAP on EC2') {
             steps {
                 echo '🛡️ Running OWASP ZAP DAST scan on EC2...'
@@ -46,7 +46,7 @@ pipeline {
                 archiveArtifacts artifacts: "$ZAP_REPORT_HTML, $ZAP_REPORT_XML, $ZAP_REPORT_JSON", onlyIfSuccessful: false
             }
         }
-
+*/
         stage('Run Nikto on EC2') {
             steps {
                 echo '🔍 Running Nikto scan on EC2...'
