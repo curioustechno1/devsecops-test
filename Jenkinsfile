@@ -54,14 +54,13 @@ pipeline {
                     sshagent(credentials: [env.EC2_KEY_ID]) {
                         sh """#!/bin/bash
                             ssh $EC2_HOST '
-                                if ! command -v nikto >/dev/null 2>&1; then
-                                    echo "Installing Nikto..."
-                                    sudo apt update && sudo apt install nikto -y
-                                else
-                                    echo "Nikto is already installed."
-                                fi
+                                rm -rf nikto
+                                git clone https://github.com/sullo/nikto.git
+                                cd nikto/program
+                                chmod +x nikto.pl
+                                ./nikto.pl -h http://$IP:$EC2_APP_PORT:3000 -o nikto_report.html -Format html || true
 
-                                nikto -h http://$IP:$EC2_APP_PORT  -o nikto_report.html || true
+                              
                             '
                             scp $EC2_HOST:/home/ubuntu/nikto_report.html .
                         """
