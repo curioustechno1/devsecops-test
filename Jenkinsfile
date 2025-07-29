@@ -53,7 +53,7 @@ pipeline {
                 sshagent(credentials: [env.EC2_KEY_ID]) {
                     sh '''
                        ssh $EC2_HOST "sudo apt update && sudo apt install nikto -y"
-                       ssh $EC2_HOST "nikto -h http://$IP:$EC2_APP_PORT -o nikto_report.html || true"
+                       ssh $EC2_HOST "nikto -h http://$IP:$EC2_APP_PORT -maxtime 10m -o nikto_report.html || true"
                        scp $EC2_HOST:~/nikto_report.html .
                     '''
                 }
