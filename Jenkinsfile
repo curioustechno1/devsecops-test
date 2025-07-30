@@ -7,7 +7,7 @@ pipeline {
         ZAP_REPORT_HTML   = 'zap_report.html'
         ZAP_REPORT_XML    = 'zap_report.xml'
         ZAP_REPORT_JSON   = 'zap_report.json'
-        IP                = '13.60.196.66'
+        IP                = '13.48.127.28'
         EC2_HOST          = "ubuntu@${IP}"
         EC2_APP_PORT      = '3000'
         EC2_KEY_ID        = 'ec2-ssh-key'
@@ -105,7 +105,7 @@ pipeline {
                               -Tuning 123456789abcde \
                               -Plugins ALL \
                               -C all \
-                              -maxtime 20m \
+                              -maxtime 25m \
                               -o /output/nikto_report.html -Format html || true
                         '
                         scp -o StrictHostKeyChecking=no $EC2_HOST:/home/ubuntu/nikto_report.html .
