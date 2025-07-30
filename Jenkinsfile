@@ -77,7 +77,7 @@ pipeline {
                 echo 'Running Nikto DAST Scan...'
                 sshagent(credentials: ['ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@13.50.251.204 <<EOF
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST <<EOF
                         export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
                         /usr/bin/rm -rf nikto
                         git clone https://github.com/sullo/nikto.git
@@ -86,7 +86,7 @@ pipeline {
                         ./nikto.pl -h http://localhost:3000 -o nikto_report.html -Format html || true
                         EOF
         
-                        scp -o StrictHostKeyChecking=no ubuntu@13.50.251.204:~/nikto/program/nikto_report.html $WORKSPACE/
+                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto/program/nikto_report.html $WORKSPACE/
                     '''
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
