@@ -100,7 +100,7 @@ pipeline {
             steps {
                 echo '🔍 Running Nikto In-Depth DAST Scan...'
                 sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh """#!/bin/bash
+                    sh """
                         ssh -o StrictHostKeyChecking=no $EC2_HOST << 'EOF'
                             export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
                             rm -rf nikto
@@ -115,13 +115,14 @@ pipeline {
                                 -o nikto_report.html -Format html || true
         EOF
         
-                        # Download the report
-                         ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat ~/nikto/program/nikto_report.html' > $NIKTO_REPORT
+                        # Fetch the report safely via ssh instead of scp
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat nikto/program/nikto_report.html' > $NIKTO_REPORT
                     """
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
-        }       
+        }
+       
 
 
 
