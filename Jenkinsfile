@@ -116,7 +116,7 @@ pipeline {
         EOF
         
                         # Download the report
-                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto/program/nikto_report.html .
+                         ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat ~/nikto/program/nikto_report.html' > $NIKTO_REPORT
                     """
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
