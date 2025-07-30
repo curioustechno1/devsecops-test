@@ -72,6 +72,7 @@ pipeline {
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }*/
+        /*
         stage('Run Nikto DAST Scan') {
             steps {
                 echo 'Running Nikto DAST Scan...'
@@ -92,8 +93,31 @@ pipeline {
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }
-
+        */
+        stage('Run Nikto DAST Scan (Docker - In-Depth)') {
+            steps {
+                echo '🔍 Running Nikto in-depth scan via Docker on EC2...'
+                sshagent(credentials: ['ec2-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST '
+                            docker run --rm --net=host -v /home/ubuntu:/output sullo/nikto \
+                              -h http://localhost:3000 \
+                              -Tuning 123456789abcde \
+                              -Plugins ALL \
+                              -C all \
+                              -maxtime 20m \
+                              -o /output/nikto_report.html -Format html || true
+                        '
+                        scp -o StrictHostKeyChecking=no $EC2_HOST:/home/ubuntu/nikto_report.html .
+                    '''
+                }
+                archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
+            }
+        }
     }
+
+
+    
         /*
         stage('Clone Repository') {
             steps {
