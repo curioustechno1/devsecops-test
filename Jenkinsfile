@@ -94,32 +94,18 @@ pipeline {
             }
         }
         */
-        stage('Run Nikto DAST Scan') {
-            steps {
-                echo '🔍 Running Nikto In-Depth DAST Scan...'
-                sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh """#!/bin/bash
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST << 'EOF'
-                            export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
-                            rm -rf nikto
-                            git clone https://github.com/sullo/nikto.git
-                            cd nikto/program
-                            chmod +x nikto.pl
-                            ./nikto.pl -h http://$IP:$EC2_APP_PORT \\
-                                -Tuning 123456789abcde \\
-                                -Plugins ALL \\
-                                -C all \\
-                                -maxtime 10m \\
-                                -o nikto_report.html -Format html || true
-        EOF
         
-                        # Download the report
-                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto/program/nikto_report.html $WORKSPACE/
-                    """
+
+        stage('Test SSH Access') {
+            steps {
+                sshagent(credentials: ['ec2-ssh-key']) {
+                    sh '''
+                        echo "🔐 Testing SSH Access..."
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST "echo ✅ SSH access successful"
+                    '''
                 }
-                archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
-        }
+        }       
 
 
 
