@@ -94,9 +94,7 @@ pipeline {
             }
         }
         */
-        
-
-       stage('Run Nikto DAST Scan') {
+        stage('Run Nikto DAST Scan') {
             steps {
                 echo '🔍 Running Nikto In-Depth DAST Scan...'
                 sshagent(credentials: ['ec2-ssh-key']) {
@@ -107,19 +105,22 @@ pipeline {
                             git clone https://github.com/sullo/nikto.git &&
                             cd nikto/program &&
                             chmod +x nikto.pl &&
-                            ./nikto.pl -h http://$IP:3000 \
+                            ./nikto.pl -h http://$IP:$EC2_APP_PORT \
                                 -Tuning 123456789abcde \
                                 -Plugins ALL \
                                 -C all \
                                 -maxtime 25m \
-                                -o /home/ubuntu/nikto_report.html -Format html || true
+                                -o /home/ubuntu/$NIKTO_REPORT -Format html || true
                         '
-                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto_report.html $WORKSPACE/
+                        scp -o StrictHostKeyChecking=no $EC2_HOST:/home/ubuntu/$NIKTO_REPORT $WORKSPACE/
                     """
                 }
-                archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
+                archiveArtifacts artifacts: "$NIKTO_REPORT", onlyIfSuccessful: false
             }
         }
+
+
+       
 
 
 
