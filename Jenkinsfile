@@ -96,32 +96,32 @@ pipeline {
         */
         
 
-        stage('Run Nikto DAST Scan') {
+       stage('Run Nikto DAST Scan') {
             steps {
                 echo '🔍 Running Nikto In-Depth DAST Scan...'
-                sshagent(credentials: [env.EC2_KEY_ID]) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST << 'EOF'
+                sshagent(credentials: ['ec2-ssh-key']) {
+                    sh '''
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST bash -s <<'EOF'
                             export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
                             rm -rf nikto
                             git clone https://github.com/sullo/nikto.git
                             cd nikto/program
                             chmod +x nikto.pl
-                            ./nikto.pl -h http://$IP:$EC2_APP_PORT \\
-                                -Tuning 123456789abcde \\
-                                -Plugins ALL \\
-                                -C all \\
-                                -maxtime 10m \\
-                                -o nikto_report.html -Format html || true
-        EOF
+                            ./nikto.pl -h http://$IP:3000 \
+                                -Tuning 123456789abcde \
+                                -Plugins ALL \
+                                -C all \
+                                -maxtime 25m \
+                                -o ~/nikto_report.html -Format html || true
+                        EOF
         
-                        # Stream file over SSH into local workspace
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat ~/nikto/program/nikto_report.html' > nikto_report.html
-                    """
+                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto_report.html $WORKSPACE/
+                    '''
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }
+
 
        
 
