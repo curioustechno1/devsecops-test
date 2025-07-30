@@ -112,7 +112,7 @@ pipeline {
                                 -Plugins ALL \
                                 -C all \
                                 -maxtime 25m \
-                                -o ~/nikto_report.html -Format html || true
+                                -o /home/ubuntu/nikto_report.html -Format html || true
                         '
                         scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto_report.html $WORKSPACE/
                     """
