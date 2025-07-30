@@ -115,13 +115,14 @@ pipeline {
                                 -o nikto_report.html -Format html || true
         EOF
         
-                        # Fetch the report safely via ssh instead of scp
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat nikto/program/nikto_report.html' > $NIKTO_REPORT
+                        # Stream file over SSH into local workspace
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST 'cat ~/nikto/program/nikto_report.html' > nikto_report.html
                     """
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }
+
        
 
 
