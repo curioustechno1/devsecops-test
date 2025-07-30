@@ -7,7 +7,7 @@ pipeline {
         ZAP_REPORT_HTML   = 'zap_report.html'
         ZAP_REPORT_XML    = 'zap_report.xml'
         ZAP_REPORT_JSON   = 'zap_report.json'
-        IP                = '13.48.127.28'
+        IP                = '13.49.231.142'
         EC2_HOST          = "ubuntu@${IP}"
         EC2_APP_PORT      = '3000'
         EC2_KEY_ID        = 'ec2-ssh-key'
@@ -105,7 +105,7 @@ pipeline {
                         git clone https://github.com/sullo/nikto.git
                         cd nikto/program
                         chmod +x nikto.pl
-                        ./nikto.pl -h http://localhost:3000 \
+                        ./nikto.pl -h http://$IP:3000 \
                             -Tuning 123456789abcde \
                             -Plugins ALL \
                             -C all \
