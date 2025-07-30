@@ -101,7 +101,7 @@ pipeline {
                     sh '''
                         ssh -o StrictHostKeyChecking=no $EC2_HOST '
                             docker run --rm --net=host -v /home/ubuntu:/output sullo/nikto \
-                              -h http://localhost:3000 \
+                              -h http://$IP:3000 \
                               -Tuning 123456789abcde \
                               -Plugins ALL \
                               -C all \
