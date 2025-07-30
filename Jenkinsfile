@@ -94,26 +94,32 @@ pipeline {
             }
         }
         */
-        stage('Run Nikto DAST Scan (Docker - In-Depth)') {
+        stage('Run Nikto DAST Scan') {
             steps {
-                echo '🔍 Running Nikto in-depth scan via Docker on EC2...'
+                echo '🔍 Running Nikto In-Depth DAST Scan...'
                 sshagent(credentials: ['ec2-ssh-key']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no $EC2_HOST '
-                            docker run --rm --net=host -v /home/ubuntu:/output owaspnet/nikto \
-                              -h http://$IP:3000 \
-                              -Tuning 123456789abcde \
-                              -Plugins ALL \
-                              -C all \
-                              -maxtime 25m \
-                              -o /output/nikto_report.html -Format html || true
-                        '
-                        scp -o StrictHostKeyChecking=no $EC2_HOST:/home/ubuntu/nikto_report.html .
+                        ssh -o StrictHostKeyChecking=no $EC2_HOST <<'EOF'
+                        export PERL5LIB="/usr/share/perl/5.38.2:/usr/share/perl5:/usr/lib/x86_64-linux-gnu/perl/5.38"
+                        rm -rf nikto
+                        git clone https://github.com/sullo/nikto.git
+                        cd nikto/program
+                        chmod +x nikto.pl
+                        ./nikto.pl -h http://localhost:3000 \
+                            -Tuning 123456789abcde \
+                            -Plugins ALL \
+                            -C all \
+                            -maxtime 25m \
+                            -o nikto_report.html -Format html || true
+                        EOF
+        
+                        scp -o StrictHostKeyChecking=no $EC2_HOST:~/nikto/program/nikto_report.html $WORKSPACE/
                     '''
                 }
                 archiveArtifacts artifacts: 'nikto_report.html', onlyIfSuccessful: false
             }
         }
+
     }
 
 
